@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Register</title>
+
+<style type="text/css">
+#registration_form {
+  background: #f0f0f0;
+  color: #333;
+}
+#registration_form input[type="text"],
+#registration_form input[type="password"] {
+  border: 1px solid #ccc;
+  width: 200px;
+}
+#registration_form input {
+  display: block;
+  margin-bottom: 8px;
+}
+#registration_form input[type="text"]:focus,
+#registration_form input[type="password"]:focus {
+  background: #F4EDB6;
+}
+</style>
+</head>
+
+<body>
+
+<!-- html code -->
+<form action="#registration_url" method="post" id="registration_form" onsubmit="return form_validate(this);">
+  <fieldset>
+  	<label for="First Name">First Name:</label>
+    <input type="text" name="first_name" id="f_name"/>
+    
+    <label for="Last Name">Last Name:</label>
+    <input type="text" name="last_name" id="l_name"/>
+    
+    <label for="register_email">Email:</label>
+    <input type="text" name="reg_email" id="reg_email"/>
+    
+    <label for="alternate_email">Secondary email:</label>
+    <input type="text" name="sec_email" id="sec_email"/>
+    
+    <label for="register_password">Password:</label>
+    <input type="password" name="password" id="reg_pwd"/>
+ 	
+    <label for="register_password_confirmation">Password Confirmation:</label>   
+    <input type="password" name="register_password_confirmation" id="pwd_cfrm"/>
+   
+    <input type="submit" value="Register"/>
+	
+	<script language="JavaScript" type="text/javascript">
+	function form_validate(form)  
+	{  
+		if (form.f_name.value  == "")
+		{
+		alert("First Name is a mandatory field.\nPlease amend and retry.")
+		form.f_name.focus();
+		return false;
+		}
+		if (form.l_name.value == "")
+		{
+		alert("Last Name is a mandatory field.\nPlease amend and retry.")
+		form.l_name.focus();
+		return false;
+		}
+		if (form.reg_email.value== "")
+		{
+		alert("Email is a mandatory field.\nPlease amend and retry.")
+		form.reg_email.focus();
+		return false;
+		}
+		if (form.sec_email.value== "")
+		{
+		alert("Secondary email is a mandatory field.\nPlease amend and retry.")
+		form.sec_email.focus();
+		return false;
+		}
+		validRegExp = /^[^@]+@[^@]+.[a-z]{2,}$/i;
+		if (form.reg_email.value.search(validRegExp)== -1)
+		{
+		alert("Invalid email address!\nPlease amend and retry.")
+		form.reg_email.focus();
+		return false;
+		}
+		if (form.sec_email.value.search(validRegExp)== -1)
+		{
+		alert("Invalid email address!\nPlease amend and retry.")
+		form.sec_email.focus();
+		return false;
+		}
+		if (form.reg_pwd.value == "")
+		{
+		alert("Password is a mandatory field.\nPlease amend and retry.")
+		form.reg_pwd.focus();
+		return false;
+		}
+		if (form.pwd_cfrm.value == "")
+		{
+		alert("Password Confirmation is a mandatory field.\nPlease amend and retry.")
+		form.pwd_cfrm.focus();
+		return false;
+		}
+		if ((form.reg_pwd.length < 6) || (form.reg_pwd.length > 15)) 
+		{
+		alert("Password length should be minimum 6 and maximum 15 chars.\nPlease amend and retry.")
+		form.reg_pwd.focus();
+		return false;
+		}
+		if (reg_pwd.value != pwd_cfrm.value)
+		{
+		alert("Password and Password confirmation don't match!\nPlease amend and retry.")
+		return false;
+		}
+		
+		
+	    return true;
+		
+	}  
+	</script>
+	
+  </fieldset>
+</form>
+
+</body>
+</html>

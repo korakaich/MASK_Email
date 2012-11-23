@@ -1,9 +1,16 @@
+/* Korak Aich, kaich
+ * 11/18/2012
+ */
 package org.mask.outsourcedemail;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
+import java.security.SecureRandom;
+import java.math.BigInteger;
+import java.security.MessageDigest;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -16,11 +23,11 @@ import javax.servlet.http.HttpSession;
 /**
  * Servlet implementation class Authenticator
  */
-//@WebServlet("/AuthenticatorPath")
+
 public class Authenticator extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Connection con;  
-	private Statement st;  
+	private Statement st1, st2;  
 	private ResultSet rs;       
     /**
      * @see HttpServlet#HttpServlet()
@@ -64,39 +71,101 @@ public class Authenticator extends HttpServlet {
 		// TODO Auto-generated method stub
 		String userName=request.getParameter("name");
 		PrintWriter writer= response.getWriter();
-		writer.println("<h4>hellooo..."+userName+"(gigiti gigiti) eh eh</h4>");
+		writer.println("<html><body><h4>Good try "+userName+".</h4> No More Lies");
+		writer.println("<a href=\"login.html\">Login here please</a></body></html>");
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+				
 		HttpSession session = request.getSession(true);
-		ServletContext context = session.getServletContext();
-		
-	    if(session == null || session.isNew()){
-	       //valid session doesn't exist
-	       //do something like send the user to a login screen
-	    	System.out.println("WHY session null or new!");
+		String session_user=(String)session.getAttribute("user_name");
+			
+	    //if(session == null || session.isNew()){
+		if(session_user!=null){// || !session_user.equals("")){
+	       //user already logged in
+	       //do something like send the user to a login screen	    
+	       System.out.println("You are already logged in");
 	    }
-	    else{
-	    	String userName=(String)session.getAttribute("name");
+	    //else{
+	    	//get the form parameters
+	    String userName=request.getParameter("name");
+	    	String password=request.getParameter("password");
+	
+	    	//set the session variable
+	    	session.setAttribute("user_name", userName);
 	    	
-	    	  
 	    	String url = "jdbc:mysql://localhost:3306/emailServer";
 	 	    String dbName = "root";  
-	 	    String dbPassword = "";
-	 	    
-	 	    //System.out.println("URL::"+url);
-	 	    //System.out.println("username::"+userName);
+	 	    String dbPassword = "";	 	    	 	   
+	 	    String salt=null;
 	 	    String rpasswd="";
+	 	    DbBean dbb=new DbBean();
 	 	    try {  
+	 	    	/*WAS TESTING BEANS HERE DID NOT WORK NEED TO CHECK AGAIN
+	 	    	String query1="SELECT salt FROM user where uname='"+userName+"'";
+	 	    	ResultSet rs1=dbb.execReadQuery(query1);
+	 	        while(rs1.next()){
+	 	        	salt=rs1.getString(1);
+	 	        }
+	 	        password=password+salt;
+	 	        //hash the password:
+	 	        MessageDigest md = MessageDigest.getInstance("SHA-256");        
+	 	        md.reset();
+	 	        md.update(password.getBytes("UTF-8")); 
+	 	        byte[] digest = md.digest();
+	 	        //password = new String(digest);
+	 	        //salt = new String(saltarray);
+	 	        StringBuffer sb = new StringBuffer();
+	 	        for (int i = 0; i < digest.length; i++) {
+	 	          sb.append(Integer.toHexString(0xFF & digest[i]));
+	 	        }
+	 	        password=sb.toString();
+	 	        System.out.println("BEANSEntered pwd: "+sb.toString());
+	 	        
+	 	        rs1=null;	 	        
+	 		    rs1 = dbb.execReadQuery("SELECT password FROM user where uname='"+userName+"'");
+	 		    while(rs1.next()){
+	 		    	rpasswd=rs1.getString(1);
+	 		    }
+	 		    System.out.println("BEANSDB password"+rpasswd);
+	 		    */
+	 	    	
 	 	    	Class.forName("com.mysql.jdbc.Driver");
 	 	    	con = DriverManager.getConnection(url, dbName, dbPassword);
-	 	        st = con.createStatement();
-	 	        st = con.createStatement();
-	 		    rs = st.executeQuery("SELECT * FROM user where uname='"+userName+"'");
+	 	        st1 = con.createStatement();
+	 	        //get salt from database::
+	 	     
+	 	        String query="SELECT salt FROM user where uname='"+userName+"'";	 	        
+	 	        rs = st1.executeQuery(query);
+	 	        while(rs.next()){
+	 	        	salt=rs.getString(1);
+	 	        }
+	 	        //append the salt in the entered password::
+	 	        password=password+salt;
+	 	        //hash the password:
+	 	        MessageDigest md = MessageDigest.getInstance("SHA-256");        
+	 	        md.reset();
+	 	        md.update(password.getBytes("UTF-8")); 
+	 	        byte[] digest = md.digest();
+	 	        //password = new String(digest);
+	 	        //salt = new String(saltarray);
+	 	        StringBuffer sb = new StringBuffer();
+	 	        for (int i = 0; i < digest.length; i++) {
+	 	          sb.append(Integer.toHexString(0xFF & digest[i]));
+	 	        }
+	 	        password=sb.toString();
+	 	        System.out.println("Entered pwd: "+sb.toString());
+	 	        
+	 	        
+	 	        //get password from db
+	 	        rs=null;
+	 	        st2 = con.createStatement();
+	 		    rs = st2.executeQuery("SELECT password FROM user where uname='"+userName+"'");
 	 		    while(rs.next()){
-	 		    	rpasswd=rs.getString(3);
+	 		    	rpasswd=rs.getString(1);
 	 		    }
-	 		   System.out.println("DB is"+rpasswd);
+	 		    System.out.println("DB password"+rpasswd);
+	 		    
 	 	    } catch (Exception e) {
 	 			e.printStackTrace();
 	 		}	    	    
@@ -106,9 +175,13 @@ public class Authenticator extends HttpServlet {
 	 	    			rs.close();
 	 	    			rs = null;
 	 	    		}
-	 	    		if(st != null) {
-	 	    			st.close();
-	 	    			st = null;
+	 	    		if(st1 != null) {
+	 	    			st1.close();
+	 	    			st1 = null;
+	 	    		}
+	 	    		if(st2 != null) {
+	 	    			st2.close();
+	 	    			st2 = null;
 	 	    		}
 	 	    		if(con != null) {
 	 	    			con.close();
@@ -116,8 +189,7 @@ public class Authenticator extends HttpServlet {
 	 	    		}
 	 	    	} catch (SQLException e) {}
 	 	    }
-	 	    
-	        
+	 	    	        
 	    	if(userName == null){
 	    		//no username in session..this should never happen ... validation check by javascript 	    
 	    		//user probably hasn't logged in properly
@@ -126,23 +198,23 @@ public class Authenticator extends HttpServlet {
 	    	PrintWriter writer= response.getWriter();
 	    	
 	    	if( true) {
-	    		String passwd=request.getParameter("hashedvalue");
-	    		String salt=request.getParameter("Salt");
-	    		System.out.println(salt);
-	    		System.out.println("Entered pwd::"+passwd);
-	    		if(passwd.equals(rpasswd)){	    			    			  
-	    			response.sendRedirect("https://localhost:8443/OutsourcedEmail/home.jsp");	    			
-	                /*if(context.getAttribute("connection")==null){
-	                	System.out.println("Null hai");
-	                }*/	                	
-	    			session.setAttribute("logged", true);
-	    			session.setMaxInactiveInterval(1);
+	    		//String passwd=request.getParameter("hashedvalue");
+	    		//String salt2=request.getParameter("Salt");
+	    		//System.out.println(salt);
+	    		//System.out.println("Entered pwd::"+passwd);
+	    		if(password.equals(rpasswd)){	    			    			  	    			
+	    			session.setAttribute("logged", "true");
+	    			session.setMaxInactiveInterval(-1);
+	    			//response.sendRedirect("https://localhost:8443/OutsourcedEmail/home.jsp");
+	    			ServletContext context= getServletContext();
+	    			RequestDispatcher rd= context.getRequestDispatcher("/home.jsp");
+	    			rd.forward(request, response);
 	    		}
 	    		else{
 	    			writer.println("<h4>hellooo..."+userName+"wtf!</h4>");
 	    		}
 	    	}
 	    	
-	    }
+	    
 	}
 }
