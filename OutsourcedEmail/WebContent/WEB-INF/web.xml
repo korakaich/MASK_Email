@@ -4,39 +4,32 @@
   <welcome-file-list>
     <welcome-file>login.jsp</welcome-file>
   </welcome-file-list>
-  
-  <servlet>  
-   <servlet-name>Authenticator</servlet-name>  
-   <servlet-class>org.mask.outsourcedemail.Authenticator</servlet-class>                
-  </servlet>  
-  
-  <servlet-mapping>  
-   <servlet-name>Authenticator</servlet-name>  
-   <url-pattern>/AuthenticatorPath</url-pattern>  
-  </servlet-mapping> 
-  <session-config>
-		<session-timeout>20</session-timeout>
-	</session-config>
-  
-  <servlet>  
-   <servlet-name>SaltDigger</servlet-name>  
-   <servlet-class>org.mask.outsourcedemail.SaltDigger</servlet-class>                
-  </servlet>  
-  
-  <servlet-mapping>  
-   <servlet-name>SaltDigger</servlet-name>  
-   <url-pattern>/SaltDiggerPath</url-pattern>  
+  <servlet>
+    <servlet-name>Authenticator</servlet-name>
+    <servlet-class>org.mask.outsourcedemail.Authenticator</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Authenticator</servlet-name>
+    <url-pattern>/AuthenticatorPath</url-pattern>
   </servlet-mapping>
-  
-  <!-- SSL settings. only allow HTTPS access to OutsourcedEmail --> 
+  <session-config>
+    <session-timeout>20</session-timeout>
+  </session-config>
+  <servlet>
+    <servlet-name>SaltDigger</servlet-name>
+    <servlet-class>org.mask.outsourcedemail.SaltDigger</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SaltDigger</servlet-name>
+    <url-pattern>/SaltDiggerPath</url-pattern>
+  </servlet-mapping>
   <security-constraint>
     <web-resource-collection>
-        <web-resource-name>Entire Application</web-resource-name>
-        <url-pattern>/*</url-pattern>
+      <web-resource-name>Entire Application</web-resource-name>
+      <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <user-data-constraint>
-        <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
   </security-constraint>
-    
 </web-app>

@@ -6,15 +6,46 @@
 </head>
 <body>
  <h3> Log in</h3>
- <%
-session.invalidate();
-%>
- <form method ="Post" action = "/OutsourcedEmail/AuthenticatorPath">
-  Username<input name="name" size="15" type="text" />
+ <%session.invalidate();%>
+ <form method ="Post" action = "/OutsourcedEmail/AuthenticatorPath" onsubmit="return login_validate(this);">
+ Email address<input name="username" size="15" type="text" />
   <br/>  
   Password <input name ="password" type="password">  
   <br/>
-  <input name="Submit" type="submit" value="Submit" />
+  <input name="Submit" type="submit" value="Login" />
+  <br/> 
+  </br>
+  <a href="Forgot_password.html">Forgot password?</a>
+  </br>
+  </br>
+  New user? Click <a href="Registration.html">here</a> to register.
+  <script language="JavaScript" type="text/javascript">
+	function login_validate(form)  
+	{  
+		if (form.username.value  == "")
+		{
+		alert("Please enter username!")
+		form.username.focus();
+		return false;
+		}
+		if (form.password.value == "")
+		{
+		alert("Please enter password!")
+		form.password.focus();
+		return false;
+		}
+		validRegExp = /^[^@]+@[^@]+.[a-z]{2,}$/i;
+		if (form.username.value.search(validRegExp)  == -1)
+		{
+		alert("Please enter valid email!")
+		form.username.focus();
+		return false;
+		}
+		return true;
+		
+	}  
+  </script>
+  
  </form>
 </body>
 </html>

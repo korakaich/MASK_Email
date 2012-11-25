@@ -18,6 +18,7 @@ if(session.isNew()){
 }
 String uname=(String)session.getAttribute("user_name");
 String logged=(String)session.getAttribute("logged");
+String domain=(String)session.getAttribute("domain_name");
 if(uname==null|| logged!="true"){  %>
 	You are not logged in.<br/>
 	Click <a href="login.jsp">here</a> to login again.
@@ -25,7 +26,14 @@ if(uname==null|| logged!="true"){  %>
 else{
 %>	
 
-Hi <% out.println(uname);  %>This is your inbox. <br/>
+Hi <% out.println(uname);  %> You are at <% out.println(domain);%><br/>
+This is your inbox. <br/>
+</br>
+</br>
+</br>
+</br>
+<a href="change_password.html">Change password</a>
+</br>
 Click <a href="logout.jsp">here</a> to logout.
 <%} %>
 </body>

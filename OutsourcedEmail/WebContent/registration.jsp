@@ -23,6 +23,7 @@
 //Statement st;
 Connection con;
 String url = "jdbc:mysql://localhost:3306/emailServer";
+int errorFlag=0;// 0 means no error
 //ResultSet rs;
 //String salt="";
 </jsp:declaration>
@@ -34,6 +35,10 @@ try {
 	String firstname=request.getParameter("first_name");
 	String lastname=request.getParameter("last_name");
 	String uname = request.getParameter("reg_email");
+	String delims = "@";
+	String[] tokens = uname.split(delims);
+	uname=tokens[0];
+	String domain=tokens[0];
 	String secondemail = request.getParameter("sec_email");
 	String psw = request.getParameter("password");
 	session.setAttribute("name", uname);
@@ -88,6 +93,7 @@ try {
 
 } catch (Exception e) {
 	e.printStackTrace();
+	errorFlag=1;
 }	    
 finally{	 	    	
 	try {
@@ -101,7 +107,11 @@ finally{
 
 ]]></jsp:scriptlet>
 
-You have been registered it seems.
+<%if (errorFlag==0){
+	%> You have been registered. Click <a href="login.jsp">here</a> to login.
+	<%}else{ %>There has been some error while registering.
+	<%} %>
+
     
 </body>
 </html>

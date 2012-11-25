@@ -7,10 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-<% session.setAttribute("user_name", null);
-session.setAttribute("logged_in",null);
-session.invalidate();%>
-You have successfully logged out.
-Click <a href="login.jsp">here</a> to login again.
+
 </body>
 </html>

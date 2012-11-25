@@ -36,7 +36,11 @@ public class Authenticator extends HttpServlet {
         super();
         // TODO Auto-generated constructor stub
     }
-    
+    public String[] getDomain(String username){    	
+    	String delims = "@";    	
+    	String[] tokens = username.split(delims);
+    	return tokens;
+    }
     /*public void init(ServletConfig config) throws ServletException {
     	String url = "jdbc:mysql://localhost:3306/emailServer";
  	    String dbName = "root";  
@@ -87,134 +91,159 @@ public class Authenticator extends HttpServlet {
 	       System.out.println("You are already logged in");
 	    }
 	    //else{
-	    	//get the form parameters
-	    String userName=request.getParameter("name");
-	    	String password=request.getParameter("password");
-	
-	    	//set the session variable
-	    	session.setAttribute("user_name", userName);
-	    	
-	    	String url = "jdbc:mysql://localhost:3306/emailServer";
-	 	    String dbName = "root";  
-	 	    String dbPassword = "";	 	    	 	   
-	 	    String salt=null;
-	 	    String rpasswd="";
-	 	    DbBean dbb=new DbBean();
-	 	    try {  
-	 	    	/*WAS TESTING BEANS HERE DID NOT WORK NEED TO CHECK AGAIN
-	 	    	String query1="SELECT salt FROM user where uname='"+userName+"'";
-	 	    	ResultSet rs1=dbb.execReadQuery(query1);
-	 	        while(rs1.next()){
-	 	        	salt=rs1.getString(1);
-	 	        }
-	 	        password=password+salt;
-	 	        //hash the password:
-	 	        MessageDigest md = MessageDigest.getInstance("SHA-256");        
-	 	        md.reset();
-	 	        md.update(password.getBytes("UTF-8")); 
-	 	        byte[] digest = md.digest();
-	 	        //password = new String(digest);
-	 	        //salt = new String(saltarray);
-	 	        StringBuffer sb = new StringBuffer();
-	 	        for (int i = 0; i < digest.length; i++) {
-	 	          sb.append(Integer.toHexString(0xFF & digest[i]));
-	 	        }
-	 	        password=sb.toString();
-	 	        System.out.println("BEANSEntered pwd: "+sb.toString());
-	 	        
-	 	        rs1=null;	 	        
-	 		    rs1 = dbb.execReadQuery("SELECT password FROM user where uname='"+userName+"'");
-	 		    while(rs1.next()){
-	 		    	rpasswd=rs1.getString(1);
-	 		    }
-	 		    System.out.println("BEANSDB password"+rpasswd);
-	 		    */
-	 	    	
-	 	    	Class.forName("com.mysql.jdbc.Driver");
-	 	    	con = DriverManager.getConnection(url, dbName, dbPassword);
-	 	        st1 = con.createStatement();
-	 	        //get salt from database::
-	 	     
-	 	        String query="SELECT salt FROM user where uname='"+userName+"'";	 	        
-	 	        rs = st1.executeQuery(query);
-	 	        while(rs.next()){
-	 	        	salt=rs.getString(1);
-	 	        }
-	 	        //append the salt in the entered password::
-	 	        password=password+salt;
-	 	        //hash the password:
-	 	        MessageDigest md = MessageDigest.getInstance("SHA-256");        
-	 	        md.reset();
-	 	        md.update(password.getBytes("UTF-8")); 
-	 	        byte[] digest = md.digest();
-	 	        //password = new String(digest);
-	 	        //salt = new String(saltarray);
-	 	        StringBuffer sb = new StringBuffer();
-	 	        for (int i = 0; i < digest.length; i++) {
-	 	          sb.append(Integer.toHexString(0xFF & digest[i]));
-	 	        }
-	 	        password=sb.toString();
-	 	        System.out.println("Entered pwd: "+sb.toString());
-	 	        
-	 	        
-	 	        //get password from db
-	 	        rs=null;
-	 	        st2 = con.createStatement();
-	 		    rs = st2.executeQuery("SELECT password FROM user where uname='"+userName+"'");
-	 		    while(rs.next()){
-	 		    	rpasswd=rs.getString(1);
-	 		    }
-	 		    System.out.println("DB password"+rpasswd);
-	 		    
-	 	    } catch (Exception e) {
-	 			e.printStackTrace();
-	 		}	    	    
-	 	    finally{	 	    	
-	 	    	try {
-	 	    		if(rs != null) {
-	 	    			rs.close();
-	 	    			rs = null;
-	 	    		}
-	 	    		if(st1 != null) {
-	 	    			st1.close();
-	 	    			st1 = null;
-	 	    		}
-	 	    		if(st2 != null) {
-	 	    			st2.close();
-	 	    			st2 = null;
-	 	    		}
-	 	    		if(con != null) {
-	 	    			con.close();
-	 	    			con = null;
-	 	    		}
-	 	    	} catch (SQLException e) {}
-	 	    }
-	 	    	        
-	    	if(userName == null){
-	    		//no username in session..this should never happen ... validation check by javascript 	    
-	    		//user probably hasn't logged in properly
-	    		System.out.println("WHY U no give username");
-	    	}	    	
-	    	PrintWriter writer= response.getWriter();
-	    	
-	    	if( true) {
-	    		//String passwd=request.getParameter("hashedvalue");
-	    		//String salt2=request.getParameter("Salt");
-	    		//System.out.println(salt);
-	    		//System.out.println("Entered pwd::"+passwd);
-	    		if(password.equals(rpasswd)){	    			    			  	    			
-	    			session.setAttribute("logged", "true");
-	    			session.setMaxInactiveInterval(-1);
-	    			//response.sendRedirect("https://localhost:8443/OutsourcedEmail/home.jsp");
-	    			ServletContext context= getServletContext();
-	    			RequestDispatcher rd= context.getRequestDispatcher("/home.jsp");
-	    			rd.forward(request, response);
-	    		}
-	    		else{
-	    			writer.println("<h4>hellooo..."+userName+"wtf!</h4>");
-	    		}
-	    	}
-	    	
-	    
+		//get the form parameters
+		String userName=request.getParameter("username");
+		String[] tokens=getDomain(userName);
+		String domain=null;
+		userName=tokens[0];
+		if(tokens.length>1){
+			domain=tokens[1];
+		}	    	
+		String password=request.getParameter("password");	
+		//set the session variable
+		session.setAttribute("user_name", userName);
+
+		String url = "jdbc:mysql://localhost:3306/emailServer";
+		String dbName = "root";  
+		String dbPassword = "";	 	    	 	   
+		String salt=null;
+		String rpasswd="";
+		//DbBean dbb=new DbBean();
+		try {
+
+
+			Class.forName("com.mysql.jdbc.Driver");
+			con = DriverManager.getConnection(url, dbName, dbPassword);
+			st1 = con.createStatement();
+			//get salt from database::
+
+			String query="SELECT salt FROM user where uname='"+userName+"'";	 	        
+			rs = st1.executeQuery(query);
+			while(rs.next()){
+				salt=rs.getString(1);
+			}
+			//append the salt in the entered password::
+			password=password+salt;
+			//hash the password:
+			MessageDigest md = MessageDigest.getInstance("SHA-256");        
+			md.reset();
+			md.update(password.getBytes("UTF-8")); 
+			byte[] digest = md.digest();
+			//password = new String(digest);
+			//salt = new String(saltarray);
+			StringBuffer sb = new StringBuffer();
+			for (int i = 0; i < digest.length; i++) {
+				sb.append(Integer.toHexString(0xFF & digest[i]));
+			}
+			password=sb.toString();
+			System.out.println("Entered pwd: "+sb.toString());
+
+
+			//get password from db
+			rs=null;
+			st2 = con.createStatement();
+			rs = st2.executeQuery("SELECT password FROM user where uname='"+userName+"'");
+			while(rs.next()){
+				rpasswd=rs.getString(1);
+			}
+			System.out.println("DB password"+rpasswd);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	    	    
+		finally{	 	    	
+			try {
+				if(rs != null) {
+					rs.close();
+					rs = null;
+				}
+				if(st1 != null) {
+					st1.close();
+					st1 = null;
+				}
+				if(st2 != null) {
+					st2.close();
+					st2 = null;
+				}
+				
+			} catch (SQLException e) {}
+		}
+
+		if(userName == null){
+			//no username in session..this should never happen ... validation check by javascript 	    
+			//user probably hasn't logged in properly
+			System.out.println("WHY U no give username");
+		}	    	
+		PrintWriter writer= response.getWriter();
+
+
+		if(password.equals(rpasswd)){	    
+			//set session attributes
+			session.setAttribute("logged", "true");
+			session.setAttribute("domain_name", domain);
+			session.setMaxInactiveInterval(-1);
+			//set time of this login
+			try {	    	 	    		    				
+				if(con==null){
+					System.out.println("whoopsie");
+				}
+				java.util.Date date= new java.util.Date();
+				Timestamp ts = new Timestamp(date.getTime());
+				st1 = con.createStatement();
+				String updateTSLastLogin="update user set TSlastLogin ='"+ts+"' where uname='"+userName+"';";
+				st1.executeUpdate(updateTSLastLogin);
+			}
+			catch(Exception e){
+				System.out.println(e);
+			}
+			finally{
+				try{
+					if(st2 != null) {
+						st2.close();
+						st2 = null;
+					}
+					if(con!=null){
+						con.close();
+						con = null;
+					}	    						
+				}
+				catch(Exception e){
+					System.out.println(e);
+				}
+			}
+
+			response.sendRedirect("home.jsp");
+		}
+		else{
+			writer.println("<html><body><h4>Incorrect username and/or password.</h4>");
+			writer.println("Click <a href=\"login.jsp\">here</a> to try again</body></html>");
+			//login attempts ++
+			try {	    	 	    		    				
+				if(con==null){
+					System.out.println("whoopsie");
+				}
+				st2 = con.createStatement();
+				String loginAttemptsQuery="update user set loginAttempts =loginAttempts+1 where uname=\"kaich\";";
+				st2.executeUpdate(loginAttemptsQuery);
+			}
+			catch(Exception e){
+				System.out.println(e);
+			}
+			finally{
+				try{
+					if(st2 != null) {
+						st2.close();
+						st2 = null;
+					}
+					if(con!=null){
+						con.close();
+						con = null;
+					}	    						
+				}
+				catch(Exception e){
+					System.out.println(e);
+				}
+			}	    				    			
+		}
 	}
 }

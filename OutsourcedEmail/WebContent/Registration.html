@@ -28,7 +28,7 @@
 <body>
 
 <!-- html code -->
-<form action="#registration_url" method="post" id="registration_form" onsubmit="return form_validate(this);">
+<form action="registration.jsp" method="post" id="registration_form" onsubmit="return form_validate(this);">
   <fieldset>
   	<label for="First Name">First Name:</label>
     <input type="text" name="first_name" id="f_name"/>
@@ -102,7 +102,7 @@
 		form.pwd_cfrm.focus();
 		return false;
 		}
-		if ((form.reg_pwd.length < 6) || (form.reg_pwd.length > 15)) 
+		if ((form.reg_pwd.value.length < 6) || (form.reg_pwd.value.length > 15)) 
 		{
 		alert("Password length should be minimum 6 and maximum 15 chars.\nPlease amend and retry.")
 		form.reg_pwd.focus();
