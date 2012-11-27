@@ -29,9 +29,11 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(description = "class to generate randome password and send email to sec email", urlPatterns = { "/PasswordRecover" })
 public class PasswordRecover extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private static final String orgURL="152.14.236.237:8443";
 	private Connection con;  
 	private Statement st1;  
-	private ResultSet rs;       
+	private ResultSet rs;
+	
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -94,6 +96,7 @@ public class PasswordRecover extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		PrintWriter writer= response.getWriter();
 		String userName=request.getParameter("username");
 		//userName has xxx@xxx.xxx
 		System.out.println("User: "+userName);
@@ -105,6 +108,16 @@ public class PasswordRecover extends HttpServlet {
     	if(tokens.length>1){
     		domain=tokens[1];
     	}
+    	System.out.println("domain is "+domain);
+    	//TODO
+    	if(domain.equals("ncsu.edu")){
+    		writer.println("<html><body>You need to go to the <a href=\"https://"+orgURL+"/EmailServer/Forgot_password.html\">ncsu page</a>" +
+    				" to change your password.</body></html>");
+    		return;
+    	}
+    	//check domain and send uname to org server
+    	//get the random pwd and the email from org server
+    	//send mail to the received email
     	System.out.println("In pwd rec: Username "+userName+" : Domain " +domain );
 		String url = "jdbc:mysql://localhost:3306/emailServer";
 		String dbName = "root";  
@@ -132,7 +145,7 @@ public class PasswordRecover extends HttpServlet {
 		//store in db
 		
 		//sendMail(secEmail);
-		PrintWriter writer= response.getWriter();
+		
 		writer.println("<html><body> An email containing a temporary password has been sent to your secondary email.<br/> " +
 				"Please <a href=\"login.jsp\">login</a> using the temporary password within 30 minutes and reset your password");
 	

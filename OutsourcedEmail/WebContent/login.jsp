@@ -1,14 +1,16 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Kmail</title>
 </head>
 <body>
  <h3> Log in</h3>
  <%session.invalidate();%>
  <form method ="Post" action = "/OutsourcedEmail/AuthenticatorPath" onsubmit="return login_validate(this);">
- Email address<input name="username" size="15" type="text" />
+  Email address<input name="username" size="15" type="text" />
   <br/>  
   Password <input name ="password" type="password">  
   <br/>
@@ -35,9 +37,9 @@
 		return false;
 		}
 		validRegExp = /^[^@]+@[^@]+.[a-z]{2,}$/i;
-		if (form.username.value.search(validRegExp)  == -1)
+		if (form.username.value.search(validRegExp)== -1)
 		{
-		alert("Please enter valid email!")
+		alert("Invalid email address!\nPlease amend and retry.")
 		form.username.focus();
 		return false;
 		}
@@ -45,7 +47,6 @@
 		
 	}  
   </script>
-  
  </form>
 </body>
 </html>

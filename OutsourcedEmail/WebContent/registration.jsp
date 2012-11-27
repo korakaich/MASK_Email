@@ -82,9 +82,9 @@ try {
     insertInfo.setString(4, password);
     insertInfo.setString(5, salt);
     insertInfo.setString(6, secondemail);
-    insertInfo.setString(7, "");
-    insertInfo.setString(8, "");
-    insertInfo.setString(9, "");
+    insertInfo.setString(7, null);
+    insertInfo.setString(8, null);
+    insertInfo.setString(9, null);
 	//String query="INSERT into user values('uname, firstname, lastname, password, salt, secondemail')";
 	//rs = st.executeQuery(query);
 	

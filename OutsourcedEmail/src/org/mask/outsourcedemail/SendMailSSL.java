@@ -8,9 +8,12 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Random;         // Contains the 'Random'
@@ -57,11 +60,31 @@ public class SendMailSSL
     		String dbName = "root";  
     		String dbPassword = "";
     		try {
-
-
     			Class.forName("com.mysql.jdbc.Driver");
     			con = DriverManager.getConnection(url, dbName, dbPassword);
     			st = con.createStatement();    		
+    			String salt = null;
+    			ResultSet rs=null;
+    			String query="SELECT salt FROM user where secondemail='"+secEmail+"'";
+    		    rs = st.executeQuery(query);
+    		    while(rs.next()){
+    		    	salt=rs.getString(1);	
+    		    }
+    		    temp_psw=temp_psw+salt;
+    			//hash the password:
+    			MessageDigest md = MessageDigest.getInstance("SHA-256");        
+    			md.reset();
+    			md.update(temp_psw.getBytes("UTF-8")); 
+    			byte[] digest = md.digest();
+    			//password = new String(digest);
+    			//salt = new String(saltarray);
+    			StringBuffer sb = new StringBuffer();
+    			for (int i = 0; i < digest.length; i++) {
+    				sb.append(Integer.toHexString(0xFF & digest[i]));
+    			}
+    			temp_psw=sb.toString();
+    		    
+    			  
     			String tempPassUpdate="update user set tempPwd='"+temp_psw+"' where secondemail='"+secEmail+"'";
     			st.executeUpdate(tempPassUpdate);
     			java.util.Date date= new java.util.Date();
