@@ -33,8 +33,8 @@ public class Authenticator extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final int MAX_UNSUCCESSFUL_LOGINS=5;
 	private static final long TIME_DIFF_LOGINS=2;
-	private static final long TEMP_PWD_EXPIRED=2;
-	private Connection con;  
+	private static final long TEMP_PWD_EXPIRED=1;
+	private Connection con,con2;  
 	private Statement st1, st2;  
 	private ResultSet rs;       
     /**
@@ -59,7 +59,7 @@ public class Authenticator extends HttpServlet {
 		};
 		HttpsURLConnection.setDefaultHostnameVerifier(hv);
 	}
-	public String authFromOrg(String username,String password) {
+	public String authFromOrg(String username,String password, String orgURL) {
 		// TODO Auto-generated method stub
 		String response="";
 		try
@@ -69,7 +69,7 @@ public class Authenticator extends HttpServlet {
 			System.setProperty("javax.net.ssl.trustStorePassword", "shorsen");
 			
 			String urlParameters = new StringBuffer().append("username=").append(username).append("&password=").append(password).toString();
-			URL u =new URL("https://152.14.236.237:8443/EmailServer/Authenticate");
+			URL u =new URL(orgURL);
 			HttpURLConnection connection = (HttpURLConnection) u.openConnection();
 			connection.setDoOutput(true);
 			connection.setDoInput(true);
@@ -140,7 +140,7 @@ public class Authenticator extends HttpServlet {
 		String userName=request.getParameter("name");
 		PrintWriter writer= response.getWriter();
 		writer.println("<html><body><h4>Good try "+userName+".</h4> No More Lies");
-		writer.println("<a href=\"login.html\">Login here please</a></body></html>");
+		writer.println("<a href=\"login.jsp\">Login here please</a></body></html>");
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -164,17 +164,51 @@ public class Authenticator extends HttpServlet {
 		}	    	
 		String password=request.getParameter("password");
 		
+		//make url 
+		//print and return;
 		//set the session variables
 		session.setAttribute("user_name", userName);
 		
-		
-		
+		//database variables
+		String url = "jdbc:mysql://localhost:3306/emailServer";
+		String dbName = "root";  
+		String dbPassword = "";	 	    	 	   							
 		//shorbani
 		String orgResponse=null;
 		PrintWriter writer= response.getWriter();
-		if(domain.equals("ncsu.edu"))
+		if(!domain.equals("kmail.com"))
 		{
-			orgResponse=authFromOrg(userName,password);
+			String orgAuthPath="https://";
+			try{
+				Class.forName("com.mysql.jdbc.Driver");
+				con = DriverManager.getConnection(url, dbName, dbPassword);
+				st1 = con.createStatement();								
+				String domainPathAuth="select ip_port, authPath from domainMap where name='"+domain+"'";
+				rs=st1.executeQuery(domainPathAuth);
+				
+				if(rs==null){					
+					System.out.println("Could not find any entry in domainMap for "+domain);
+					writer.println("We dont have the domain registered.");
+					return;
+				}
+				else{					
+					while(rs.next()){
+						orgAuthPath+=rs.getString(1);						
+						orgAuthPath+="/";
+						orgAuthPath+=rs.getString(2);
+						
+					}
+				}				
+			}catch(Exception e){
+				System.out.println(e);
+			}
+			if(orgAuthPath.equals("https://")){
+				System.out.println("Could not find any entry in domainMap for "+domain);
+				writer.println("<html><body>We dont have the domain registered.");
+				writer.println("Click <a href=\"login.jsp\">here</a> to try again</body></html>");
+				return;
+			}
+			orgResponse=authFromOrg(userName,password, orgAuthPath);
 			System.out.println("ORG response is:"+ orgResponse);
 			if(orgResponse.equals("1") || orgResponse.equals("2")){
 				System.out.println("Came here if normal pass is true");
@@ -188,7 +222,7 @@ public class Authenticator extends HttpServlet {
 					session.setAttribute("tempUsed", "true");//temp password used
 				}
 				
-				//set time of this login
+				//set time of this login #TODO?
 				response.sendRedirect("home.jsp");
 			}
 			else if (orgResponse.equals("0")){
@@ -197,7 +231,7 @@ public class Authenticator extends HttpServlet {
 			}
 			else if(orgResponse.equals("3")){
 				writer.println("<html><body>You have tried too many unsuccessful logins. Your account has been locked " +
-						"for a certain period.<br/> Please login after sometime.</body></html>");
+						"for a certain period.<br/> Please Click <a href=\"login.jsp\">login</a> after sometime.</body></html>");
 			}
 			else if(orgResponse.equals("4")){
 				writer.println("<html><body>Your temp password has expired. Click <a href=\"login.jsp\">here</a> to login again."+ 
@@ -205,10 +239,6 @@ public class Authenticator extends HttpServlet {
 			}
 		}
 		else{
-			//database variables
-			String url = "jdbc:mysql://localhost:3306/emailServer";
-			String dbName = "root";  
-			String dbPassword = "";	 	    	 	   
 			String salt=null;
 			
 			
@@ -335,12 +365,14 @@ public class Authenticator extends HttpServlet {
 					return;
 				}						
 			}
+			int tempTrueFlag=0;
 			if(password.equals(rTempPwd)){
 				//get current time stamp
 				java.util.Date date= new java.util.Date();
 				Timestamp ts = new Timestamp(date.getTime());
 				long diffTmpPwdGen=(ts.getTime()-rTStampPwdGen.getTime())/(60*1000);
 				System.out.println( "Temp passwd Time diff in minutes"+diffTmpPwdGen);
+				tempTrueFlag=0;
 				try {
 					st1 = con.createStatement();
 					String updateTmpPwd="update user set tempPwd =\"\" where uname='"+userName+"';";
@@ -356,26 +388,32 @@ public class Authenticator extends HttpServlet {
 					return;
 				}
 				
-				//remove the temp pwd since it has been used to login 								
+				 								
 			}
 			
 			if(password.equals(rpasswd) || password.equals(rTempPwd)){	    
 				//set session attributes
-				System.out.println("Came here if temp pass is true");
+				//System.out.println("Came here if temp pass is true");
+				
+				
 				session.setAttribute("logged", "true");
 				session.setAttribute("domain_name", domain);
 				session.setMaxInactiveInterval(-1);
 				//set time of this login
+				
 				try {	    	 	    		    				
 					
 					java.util.Date date= new java.util.Date();
 					Timestamp ts = new Timestamp(date.getTime());
+					if(tempTrueFlag==1){
+						//TODO ::remove the temp pwd since it has been used to login
+					}
 					st1 = con.createStatement();
 					String updateTSLastLogin="update user set TSlastLogin ='"+ts+"' where uname='"+userName+"';";
 					st1.executeUpdate(updateTSLastLogin);
 					st2 = con.createStatement();
 					String loginAttemptsQuery="update user set loginAttempts =0 where uname='"+userName+"';";
-					st2.executeUpdate(loginAttemptsQuery);
+					st2.executeUpdate(loginAttemptsQuery);					
 				}
 				catch(Exception e){
 					System.out.println(e);

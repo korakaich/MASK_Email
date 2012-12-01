@@ -87,9 +87,14 @@ public class PasswordRecover extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-	}
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	// TODO Auto-generated method stub
+    
+    	String userName=request.getParameter("name");
+    	PrintWriter writer= response.getWriter();
+    	writer.println("<html><body><h4>Good try "+userName+".</h4> No More Lies");
+    	writer.println("<a href=\"login.jsp\">Login here please</a></body></html>");
+    }
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
@@ -110,11 +115,9 @@ public class PasswordRecover extends HttpServlet {
     	}
     	System.out.println("domain is "+domain);
     	//TODO
-    	if(domain.equals("ncsu.edu")){
-    		writer.println("<html><body>You need to go to the <a href=\"https://"+orgURL+"/EmailServer/Forgot_password.html\">ncsu page</a>" +
-    				" to change your password.</body></html>");
-    		return;
-    	}
+    	//search domain in db
+    	
+    	
     	//check domain and send uname to org server
     	//get the random pwd and the email from org server
     	//send mail to the received email
@@ -125,10 +128,47 @@ public class PasswordRecover extends HttpServlet {
 		String secEmail=null;
 		//String rpasswd="";
 		//DbBean dbb=new DbBean();
-		try {  
+		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			con = DriverManager.getConnection(url, dbName, dbPassword);
 			st1 = con.createStatement();
+			
+			
+			//check domain in db
+			if(!domain.equals("kmail.com")){
+				//TODO
+				String orgPathForgotPwd="https://";
+				//select pwdRstPath from domainMap where name =
+				String domainPathForgot="select ip_port, pwdRstPath from domainMap where name='"+domain+"'";
+				rs=st1.executeQuery(domainPathForgot);
+				if(rs==null){
+					System.out.println("Could not find any entry in domainMap for "+domain);
+					writer.println("We dont have the domain registered.");
+					return;
+				}
+				else{
+					while(rs.next()){
+						orgPathForgotPwd+=rs.getString(1);
+						orgPathForgotPwd+="/";
+						orgPathForgotPwd+=rs.getString(2);
+					}
+				}
+				System.out.println("going to "+orgPathForgotPwd);
+				if(orgPathForgotPwd.equals("https://")){
+					System.out.println("Could not find any entry in domainMap for "+domain);
+					writer.println("<html><body>We dont have the domain registered.");
+					writer.println("Click <a href=\"login.jsp\">here</a> to try again</body></html>");
+					return;
+				}
+	    		writer.println("<html><body>You need to go to the <a href=\""+orgPathForgotPwd+"\">"+domain+" page</a>" +
+	    				" to change your password.</body></html>");
+	    		rs.close();
+	    		st1.close();
+	    		con.close();
+	    		return;
+	    	}
+			
+			
 			//get salt from database::			
 			String query="SELECT secondemail FROM user where uname='"+userName+"'";	 	        
 			rs = st1.executeQuery(query);

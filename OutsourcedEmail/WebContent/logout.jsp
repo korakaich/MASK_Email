@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -9,7 +10,8 @@
 <body>
 <% session.setAttribute("user_name", null);
 session.setAttribute("logged_in",null);
-session.invalidate();%>
+session.invalidate();
+%>
 You have successfully logged out.
 Click <a href="login.jsp">here</a> to login again.
 </body>
