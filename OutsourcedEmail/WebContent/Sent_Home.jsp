@@ -58,8 +58,8 @@ else{
 		
 		if(!domain.equals("kmail.com")){				 		
 			try {
-				Class.forName("com.mysql.jdbc.Driver");
-				con = DriverManager.getConnection(url, dbName, dbPassword);
+				//Class.forName("com.mysql.jdbc.Driver");
+				//con = DriverManager.getConnection(url, dbName, dbPassword);
 				st1 = con.createStatement();
 				String query="SELECT ip_port, changePwdPath, pwdRstPath FROM domainMap where name ='"+domain+"'";	 	        
 				rs = st1.executeQuery(query);
@@ -69,13 +69,9 @@ else{
 					pwdRstPath1=rs.getString(3);
 				}
 				changePwdPath2="https://"+ip_port+"/"+changePwdPath1+"";
-				System.out.println("###################before:: path is"+changePwdPath2);
-				changePwdPath2=changePwdPath2.substring(0, changePwdPath2.length()-4);
-				changePwdPath2=changePwdPath2+"Def.jsp";
-				System.out.println("after:: path is"+changePwdPath2);
 				pwdRstPath2="https://"+ip_port+"/"+pwdRstPath1+"";
 				
-						//domainURL="http://152.14.161.187:8080/OrgServer2/login.jsp";
+	
 			}//try closes
 			catch (Exception e) {
 					e.printStackTrace();
@@ -107,9 +103,7 @@ else{
 	<a href="Compose.jsp">Compose</a>
 	<%
 	
-	String me =(String)session.getAttribute("user_name")+'@'+(String)session.getAttribute("domain_name");
-	//##############TODO###########################
-	//encrypt 'me'	
+	String me =(String)session.getAttribute("user_name")+'@'+(String)session.getAttribute("domain_name");	
 	String enSubject,enContent,contentHash,Time=null;
 	byte[] eSubject=null, eContent=null;
 	String mailFrom =null ,mailSubject=null ,mailContent=null ,mailHash=null;
@@ -120,13 +114,13 @@ else{
 				Class.forName("com.mysql.jdbc.Driver");
 				con = DriverManager.getConnection(url, dbName, dbPassword);
 				st1 = con.createStatement();
-				String query="SELECT enFrom, enSubject, enContent, contentHash, timeStampMsg FROM emailStore where ensendTo ='"+me+"'";
+				String query="SELECT ensendTo, enSubject, enContent, contentHash, timeStampMsg FROM emailStore where enFrom ='"+me+"'";
 				System.out.println(query);
 				rs = st1.executeQuery(query);
 				%>
 				<TABLE cellpadding="15" border="1" style="background-color: #ffffcc;">
 				<TR>
-					<TD>From</TD>
+					<TD>To</TD>
 					<TD>Subject</TD>
 					<TD>Content</TD>
 					<TD>Time</TD>
@@ -181,14 +175,13 @@ else{
 	</br>
 	</br>
 	</br>
-	<a href="Sent_Home.jsp">Sent Mails</a>
+	<a href="home.jsp">Inbox</a>
 	<% if (!domain.equals("kmail.com")){		
 		out.println("Click <a href=\'"+changePwdPath2+"'>here </a> to change password.");
 	}
 	else{
 	%>
-	
-	<a href="ChangePwdDef.jsp">Change password</a>
+	<a href="ChangePwd.jsp">Change password</a>
 	<%} %>
 	</br>
 Click <a href="logout.jsp">here</a> to logout.

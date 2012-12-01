@@ -57,11 +57,11 @@ if(uname==null|| logged!="true"){  %>
 else{%>
 <h3>Change Password</h3>
 
- <form method ="Post" action = "/OutsourcedEmail/ChangedPassword.jsp" >
-  
-   
+ <form method ="Post" action = "/OutsourcedEmail/ChangedPasswordDef.jsp" >
+  Enter old password<input name="password" type="password" />
   <br/> 
-  Enter new password <input name ="new_password" type="password">  
+  <br/> 
+  Enter new password <input name ="new_password" type="password"/>  
   <br/>
   <br/>
   Confirm new password <input name ="cfrm_new_password" type="password">  

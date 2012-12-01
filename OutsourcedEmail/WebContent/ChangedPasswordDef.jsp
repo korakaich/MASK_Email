@@ -28,7 +28,7 @@
 		out.println("Click <a href=\"login.jsp\">here</a> to login again.");
 
 	} else {//not to be handled for org..till here
-		//String currPwd = request.getParameter("password");
+		String currPwd = request.getParameter("password");
 		String newPwd = request.getParameter("new_password");
 		//String unHashedCurrPwd=currPwd;	
 		//also get uname
@@ -50,39 +50,35 @@
 			while (rs.next()) {
 				salt = rs.getString(1);
 			}
-
+		    currPwd=currPwd+salt;//now added
 			MessageDigest md = MessageDigest.getInstance("SHA-256");
 			byte[] digest = md.digest();
-			StringBuffer sb = new StringBuffer();
-		    //currPwd = currPwd + salt;
-			/*
-			
+			StringBuffer sb = new StringBuffer();		    					
 			md.reset();
 			md.update(currPwd.getBytes("UTF-8"));
-			byte[] digest = md.digest();
-			StringBuffer sb = new StringBuffer();
+			digest = md.digest();
+			sb = new StringBuffer();
 			for (int i = 0; i < digest.length; i++) {
 				sb.append(Integer.toHexString(0xFF & digest[i]));
 			}
 			currPwd = sb.toString();
-			System.out.println("Entered pwd: " + sb.toString());
-			*/
+			System.out.println("Changing pwd::Entered pwd after hash: " + sb.toString());
+			
 			//now get the stored password;
-			/*
+			
 			String rpasswd = null;
 			String tempPwd=null;
 			//get password from db
 			rs = null;
-			rs = st.executeQuery("SELECT password, tempPwd FROM user where uname='"
+			rs = st.executeQuery("SELECT password FROM user where uname='"
 					+ uname + "'");
 			while (rs.next()) {
-				rpasswd = rs.getString(1);
-				tempPwd = rs.getString(2);
+				rpasswd = rs.getString(1);				
 				
 			}
-			System.out.println("DB password" + rpasswd);
-			*/
-			if (true){//rpasswd.equals(currPwd) || tempPwd.equals(unHashedCurrPwd)) {//if passwords match
+			System.out.println("Changing pwd:: DB password" + rpasswd);
+			
+			if (rpasswd.equals(currPwd)){ //if passwords match
 				//gen new salt						
 				
 				SecureRandom r = new SecureRandom();
@@ -98,7 +94,7 @@
 				//byte[] digest = md.digest();
 				digest = md.digest();
 				
-				//StringBuffer sb = new StringBuffer();
+				//sb = new StringBuffer();
 				sb = new StringBuffer();
 				for (int i = 0; i < digest.length; i++) {
 					sb.append(Integer.toHexString(0xFF & digest[i]));

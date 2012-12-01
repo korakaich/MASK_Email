@@ -64,10 +64,7 @@ public class Authenticator extends HttpServlet {
 		String response="";
 		try
 		{
-			myHostVerifier();
-			System.setProperty("javax.net.ssl.trustStore", "/home/korak/orgCert.keystore");
-			System.setProperty("javax.net.ssl.trustStorePassword", "shorsen");
-			
+			myHostVerifier();			
 			String urlParameters = new StringBuffer().append("username=").append(username).append("&password=").append(password).toString();
 			URL u =new URL(orgURL);
 			HttpURLConnection connection = (HttpURLConnection) u.openConnection();
@@ -105,31 +102,10 @@ public class Authenticator extends HttpServlet {
     	String[] tokens = username.split(delims);
     	return tokens;
     }
-    /*public void init(ServletConfig config) throws ServletException {
-    	String url = "jdbc:mysql://localhost:3306/emailServer";
- 	    String dbName = "root";  
- 	    String dbPassword = "";
- 	    
-      	String driver = config.getInitParameter("Driver");  
-        String url = config.getInitParameter("URL");  
-        String userName = config.getInitParameter("UserName");  
-        String password = config.getInitParameter("Password");
-    	  
-        String url = "jdbc:mysql://localhost:3306/emailServer";  
-        String userName = "root"; 
-        String password = "";
-    	
-        
-        try {  
-        	Class.forName("com.mysql.jdbc.Driver");
-        	con = DriverManager.getConnection(url, userName, password);
-            st = con.createStatement();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}        
-        ServletContext context = getServletContext();
-        context.setAttribute("connection", con); // Save DB Connection as an attribute                       
-     }  */
+    public void init(ServletConfig config) throws ServletException {
+    	System.setProperty("javax.net.ssl.trustStore", "/home/korak/orgCert.keystore");
+		System.setProperty("javax.net.ssl.trustStorePassword", "shorsen");	        
+     } 
   
     
 	/**
@@ -176,14 +152,18 @@ public class Authenticator extends HttpServlet {
 		//shorbani
 		String orgResponse=null;
 		PrintWriter writer= response.getWriter();
+		
+		
+		//FOR ORG DOMAIN
 		if(!domain.equals("kmail.com"))
 		{
 			String orgAuthPath="https://";
+			String changePwdPath="https://";
 			try{
 				Class.forName("com.mysql.jdbc.Driver");
 				con = DriverManager.getConnection(url, dbName, dbPassword);
 				st1 = con.createStatement();								
-				String domainPathAuth="select ip_port, authPath from domainMap where name='"+domain+"'";
+				String domainPathAuth="select ip_port, authPath, changePwdPath from domainMap where name='"+domain+"'";
 				rs=st1.executeQuery(domainPathAuth);
 				
 				if(rs==null){					
@@ -196,6 +176,9 @@ public class Authenticator extends HttpServlet {
 						orgAuthPath+=rs.getString(1);						
 						orgAuthPath+="/";
 						orgAuthPath+=rs.getString(2);
+						changePwdPath+=rs.getString(1);						
+						changePwdPath+="/";
+						changePwdPath+=rs.getString(3);
 						
 					}
 				}				
@@ -217,9 +200,14 @@ public class Authenticator extends HttpServlet {
 				session.setMaxInactiveInterval(-1);
 				if(orgResponse.equals("1")){
 					session.setAttribute("tempUsed", "false");//temp password not used
+					//response.sendRedirect("ChangePwd.jsp");
+					//return
 				}
 				else if (orgResponse.equals("2")){
 					session.setAttribute("tempUsed", "true");//temp password used
+					System.out.println("Redirecting to "+changePwdPath);
+					response.sendRedirect(changePwdPath);
+					return;
 				}
 				
 				//set time of this login #TODO?
@@ -237,11 +225,9 @@ public class Authenticator extends HttpServlet {
 				writer.println("<html><body>Your temp password has expired. Click <a href=\"login.jsp\">here</a> to login again."+ 
 						"</body></html>");			
 			}
-		}
+		}//For domain ends
 		else{
-			String salt=null;
-			
-			
+			String salt=null;						
 			//variables populated from db
 			
 			String rpasswd=null;
@@ -376,8 +362,7 @@ public class Authenticator extends HttpServlet {
 				try {
 					st1 = con.createStatement();
 					String updateTmpPwd="update user set tempPwd =\"\" where uname='"+userName+"';";
-					st1.executeUpdate(updateTmpPwd);
-					
+					st1.executeUpdate(updateTmpPwd);					
 				}
 				catch(Exception e){
 					System.out.println(e);			
@@ -405,15 +390,17 @@ public class Authenticator extends HttpServlet {
 					
 					java.util.Date date= new java.util.Date();
 					Timestamp ts = new Timestamp(date.getTime());
-					if(tempTrueFlag==1){
-						//TODO ::remove the temp pwd since it has been used to login
-					}
+					
 					st1 = con.createStatement();
 					String updateTSLastLogin="update user set TSlastLogin ='"+ts+"' where uname='"+userName+"';";
 					st1.executeUpdate(updateTSLastLogin);
 					st2 = con.createStatement();
 					String loginAttemptsQuery="update user set loginAttempts =0 where uname='"+userName+"';";
-					st2.executeUpdate(loginAttemptsQuery);					
+					st2.executeUpdate(loginAttemptsQuery);
+					if(tempTrueFlag==1){
+						response.sendRedirect("ChangePwd.jsp");	
+						return;
+					}
 				}
 				catch(Exception e){
 					System.out.println(e);
