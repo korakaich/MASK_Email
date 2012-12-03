@@ -9,6 +9,12 @@
 	function login_validate(form)  
 	{  
 		
+		if (form.password.value  == "")
+		{
+		alert("Please enter old password!")
+		form.password.focus();
+		return false;
+		}
 		if (form.new_password.value == "")
 		{
 		alert("Please enter new password!")
@@ -21,6 +27,7 @@
 		form.cfrm_new_password.focus();
 		return false;
 		}
+		
 		
 		if ((form.new_password.value.length < 6) || (form.new_password.value.length > 15)) 
 		{
@@ -57,17 +64,17 @@ if(uname==null|| logged!="true"){  %>
 else{%>
 <h3>Change Password</h3>
 
- <form method ="Post" action = "/OutsourcedEmail/ChangedPasswordDef.jsp" >
-  Enter old password<input name="password" type="password" />
+ <form method ="Post" action = "/OutsourcedEmail/ChangedPasswordDef.jsp" onsubmit="return login_validate(this)">
+  Enter old password<input name="password" type="password">
   <br/> 
   <br/> 
-  Enter new password <input name ="new_password" type="password"/>  
+  Enter new password <input name ="new_password" type="password">  
   <br/>
   <br/>
   Confirm new password <input name ="cfrm_new_password" type="password">  
   <br/>
   <br/>
-  <input name="Change_Password" type="submit" value="Change Password" onclick="return login_validate(this)" />
+  <input name="Change_Password" type="submit" value="Change Password" ">
   <br/> 
   
   </form>

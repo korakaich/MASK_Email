@@ -10,11 +10,11 @@
  <h3> Log in</h3>
  <%session.invalidate();%>
  <form method ="Post" action = "/OutsourcedEmail/AuthenticatorPath" onsubmit="return login_validate(this);">
-  Email address<input name="username" size="15" type="text" />
+  Email address<input name="username" size="15" type="text">
   <br/>  
   Password <input name ="password" type="password">  
   <br/>
-  <input name="Submit" type="submit" value="Login" />
+  <input name="Submit" type="submit" value="Login">
   <br/> 
   </br>
   <a href="Forgot_password.html">Forgot password?</a>

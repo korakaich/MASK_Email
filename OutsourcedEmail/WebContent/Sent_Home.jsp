@@ -54,12 +54,11 @@ else{
 	String pwdRstPath1=null;
 	String changePwdPath2=null;
 	String pwdRstPath2=null;
-	if(domain!=null){
-		
+	if(domain!=null){		
 		if(!domain.equals("kmail.com")){				 		
 			try {
-				//Class.forName("com.mysql.jdbc.Driver");
-				//con = DriverManager.getConnection(url, dbName, dbPassword);
+				Class.forName("com.mysql.jdbc.Driver");
+				con = DriverManager.getConnection(url, dbName, dbPassword);
 				st1 = con.createStatement();
 				String query="SELECT ip_port, changePwdPath, pwdRstPath FROM domainMap where name ='"+domain+"'";	 	        
 				rs = st1.executeQuery(query);
@@ -69,9 +68,13 @@ else{
 					pwdRstPath1=rs.getString(3);
 				}
 				changePwdPath2="https://"+ip_port+"/"+changePwdPath1+"";
+				System.out.println("###################before:: path is"+changePwdPath2);
+				changePwdPath2=changePwdPath2.substring(0, changePwdPath2.length()-4);
+				changePwdPath2=changePwdPath2+"Def.jsp";
+				System.out.println("after:: path is"+changePwdPath2);
 				pwdRstPath2="https://"+ip_port+"/"+pwdRstPath1+"";
 				
-	
+						//domainURL="http://152.14.161.187:8080/OrgServer2/login.jsp";
 			}//try closes
 			catch (Exception e) {
 					e.printStackTrace();
@@ -85,6 +88,10 @@ else{
 					if(st1 != null) {
 						st1.close();
 						st1 = null;
+					}
+					if(con!=null){
+						con.close();
+						con = null;
 					}
 					
 			}catch (SQLException e) {}
@@ -103,7 +110,9 @@ else{
 	<a href="Compose.jsp">Compose</a>
 	<%
 	
-	String me =(String)session.getAttribute("user_name")+'@'+(String)session.getAttribute("domain_name");	
+	String me =(String)session.getAttribute("user_name")+'@'+(String)session.getAttribute("domain_name");
+	//##############TODO###########################
+	//encrypt 'me'	
 	String enSubject,enContent,contentHash,Time=null;
 	byte[] eSubject=null, eContent=null;
 	String mailFrom =null ,mailSubject=null ,mailContent=null ,mailHash=null;
@@ -165,9 +174,10 @@ else{
 				rs.close();
 				st1.close();
 				con.close();
-				} catch (Exception ex) {			
-				out.println("Unable to connect to database.");
-				System.out.println(ex);
+				} 
+				catch (Exception ex) {			
+					out.println("Unable to connect to database.");
+					System.out.println(ex);
 				}
 				%>
 				</TABLE>	
@@ -175,13 +185,14 @@ else{
 	</br>
 	</br>
 	</br>
-	<a href="home.jsp">Inbox</a>
+	<a href="Sent_Home.jsp">Sent Mails</a>
 	<% if (!domain.equals("kmail.com")){		
 		out.println("Click <a href=\'"+changePwdPath2+"'>here </a> to change password.");
 	}
 	else{
 	%>
-	<a href="ChangePwd.jsp">Change password</a>
+	
+	<a href="ChangePwdDef.jsp">Change password</a>
 	<%} %>
 	</br>
 Click <a href="logout.jsp">here</a> to logout.

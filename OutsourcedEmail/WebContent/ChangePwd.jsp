@@ -57,7 +57,7 @@ if(uname==null|| logged!="true"){  %>
 else{%>
 <h3>Change Password</h3>
 
- <form method ="Post" action = "/OutsourcedEmail/ChangedPassword.jsp" >
+ <form method ="Post" action = "/OutsourcedEmail/ChangedPassword.jsp"  onsubmit="return login_validate(this)">
   
    
   <br/> 
@@ -67,7 +67,7 @@ else{%>
   Confirm new password <input name ="cfrm_new_password" type="password">  
   <br/>
   <br/>
-  <input name="Change_Password" type="submit" value="Change Password" onclick="return login_validate(this)" />
+  <input name="Change_Password" type="submit" value="Change Password" >
   <br/> 
   
   </form>

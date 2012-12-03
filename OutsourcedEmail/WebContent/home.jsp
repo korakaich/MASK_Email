@@ -54,8 +54,7 @@ else{
 	String pwdRstPath1=null;
 	String changePwdPath2=null;
 	String pwdRstPath2=null;
-	if(domain!=null){
-		
+	if(domain!=null){		
 		if(!domain.equals("kmail.com")){				 		
 			try {
 				Class.forName("com.mysql.jdbc.Driver");
@@ -89,6 +88,10 @@ else{
 					if(st1 != null) {
 						st1.close();
 						st1 = null;
+					}
+					if(con!=null){
+						con.close();
+						con = null;
 					}
 					
 			}catch (SQLException e) {}
@@ -171,9 +174,10 @@ else{
 				rs.close();
 				st1.close();
 				con.close();
-				} catch (Exception ex) {			
-				out.println("Unable to connect to database.");
-				System.out.println(ex);
+				} 
+				catch (Exception ex) {			
+					out.println("Unable to connect to database.");
+					System.out.println(ex);
 				}
 				%>
 				</TABLE>	

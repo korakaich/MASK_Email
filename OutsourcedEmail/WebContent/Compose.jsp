@@ -56,7 +56,7 @@ if(uname==null|| logged!="true"){  %>
 else{
 %>	
 <form method ="Post" action = "/OutsourcedEmail/StoreMail" onsubmit="return login_validate(this);">
-  To:&nbsp; &nbsp; &nbsp; &nbsp;<input name="to" size="100" type="text" />
+  To:&nbsp; &nbsp; &nbsp; &nbsp;<input name="to" size="100" type="text">
   <br/>  
   Subject:<input name ="subject" size="100" type="text">  
   <br/>
@@ -64,7 +64,7 @@ else{
   </textarea>
     
   <br/>
-  <input name="send" type="submit" value="Send" />
+  <input name="send" type="submit" value="Send">
   <br/> 
   </form>
 </body>

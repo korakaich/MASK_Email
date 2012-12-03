@@ -9,6 +9,8 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import com.sun.mail.util.MailSSLSocketFactory;
+
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -22,23 +24,36 @@ import java.math.BigInteger;
 public class SendMailSSL 
 {
     // extract email address and store it in some variable x.
+	public Properties props;
 	public SendMailSSL(){
-		
-	}
-    public String sendMail(String secEmail) 
-    {
-        Properties props = new Properties();
+		props = new Properties();				
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.socketFactory.port", "465");
         props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.port", "465");
+	}
+    public String sendMail(String secEmail) 
+    {
+        
+    	try{
+    		MailSSLSocketFactory socketFactory= new MailSSLSocketFactory();
+    		socketFactory.setTrustAllHosts(true);
+    		props.put("mail.imaps.ssl.socketFactory", socketFactory);
+    	}
+    	catch(Exception e){
+    		System.out.println(e);
+    	}
+    	    	 
+                  
+         
         Connection con=null;  
 		Statement st=null;
  
         Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() { protected PasswordAuthentication getPasswordAuthentication() {  return new PasswordAuthentication("csc574.mask","csc574project"); } }); 
         try 
         {
+        	
             String temp_psw;                            // has to be stored in the database
             SecureRandom r = new SecureRandom();
             byte[] temp = new byte[4];
@@ -108,7 +123,7 @@ public class SendMailSSL
 				}
 				catch(Exception e){
 					System.out.println(e);
-				}
+				}				
 			}
             Transport.send(message);            
             System.out.println("Mail sent");

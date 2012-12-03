@@ -103,8 +103,10 @@ public class Authenticator extends HttpServlet {
     	return tokens;
     }
     public void init(ServletConfig config) throws ServletException {
-    	System.setProperty("javax.net.ssl.trustStore", "/home/korak/orgCert.keystore");
-		System.setProperty("javax.net.ssl.trustStorePassword", "shorsen");	        
+    	if(System.getProperty("javax.net.ssl.trustStore")==null){
+    		System.setProperty("javax.net.ssl.trustStore", "/home/korak/orgCert.keystore");
+    		System.setProperty("javax.net.ssl.trustStorePassword", "shorsen");
+    	}
      } 
   
     
@@ -123,7 +125,10 @@ public class Authenticator extends HttpServlet {
 				
 		HttpSession session = request.getSession(true);//NOT NEEDED
 		String session_user=(String)session.getAttribute("user_name");//NOT NEEDED
-			
+		if(System.getProperty("javax.net.ssl.trustStore")==null){
+    		System.setProperty("javax.net.ssl.trustStore", "/home/korak/orgCert.keystore");
+    		System.setProperty("javax.net.ssl.trustStorePassword", "shorsen");
+    	}	
 	    //check session 
 		if(session_user!=null){
 	       //user already logged in
@@ -358,7 +363,7 @@ public class Authenticator extends HttpServlet {
 				Timestamp ts = new Timestamp(date.getTime());
 				long diffTmpPwdGen=(ts.getTime()-rTStampPwdGen.getTime())/(60*1000);
 				System.out.println( "Temp passwd Time diff in minutes"+diffTmpPwdGen);
-				tempTrueFlag=0;
+				tempTrueFlag=1;
 				try {
 					st1 = con.createStatement();
 					String updateTmpPwd="update user set tempPwd =\"\" where uname='"+userName+"';";
@@ -420,7 +425,6 @@ public class Authenticator extends HttpServlet {
 						System.out.println(e);
 					}
 				}
-
 				response.sendRedirect("home.jsp");
 			}
 			else{
