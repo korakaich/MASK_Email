@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>EmailServerNew</display-name>
+  <welcome-file-list>
+    <welcome-file>Registration.html</welcome-file>
+  </welcome-file-list>
+  <servlet>
+    <description></description>
+    <display-name>Authenticate</display-name>
+    <servlet-name>Authenticate</servlet-name>
+    <servlet-class>org.mask.outsourcedemail.Authenticate</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Authenticate</servlet-name>
+    <url-pattern>/Authenticate</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>PasswordRecover</display-name>
+    <servlet-name>PasswordRecover</servlet-name>
+    <servlet-class>org.mask.outsourcedemail.PasswordRecover</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PasswordRecover</servlet-name>
+    <url-pattern>/PasswordRecover</url-pattern>
+  </servlet-mapping>
+
+</web-app>
